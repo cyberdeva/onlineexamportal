@@ -1,0 +1,213 @@
+import tkinter as tk
+from tkinter import messagebox
+
+questions = [
+    {"question": "Which of the following is a valid Python identifier?",
+     "options": ["1value", "value_1", "value-1", "value@1"],
+     "answer": "value_1"},
+
+    {"question": "Which of these is a mutable data type in Python?",
+     "options": ["tuple", "string", "list", "int"],
+     "answer": "list"},
+
+    {"question": "Which keyword is used to define a function in Python?",
+     "options": ["func", "define", "def", "function"],
+     "answer": "def"},
+
+    {"question": "What is the output of type(3.0)?",
+     "options": ["int", "float", "str", "complex"],
+     "answer": "float"},
+
+    {"question": "Which operator is used for exponentiation in Python?",
+     "options": ["^", "**", "*", "%"],
+     "answer": "**"},
+
+    {"question": "What does len('Hello') return?",
+     "options": ["4", "5", "6", "Error"],
+     "answer": "5"},
+
+    {"question": "What is the default return value of a function without a return statement?",
+     "options": ["0", "None", "Null", "False"],
+     "answer": "None"},
+
+    {"question": "Which of the following statements will create an empty dictionary?",
+     "options": ["{}", "[]", "()", "set()"],
+     "answer": "{}"},
+
+    {"question": "Which method adds an element to a list?",
+     "options": ["add()", "insert()", "append()", "push()"],
+     "answer": "append()"},
+
+    {"question": "What is the output of print(2 == 2.0)?",
+     "options": ["True", "False", "Error", "None"],
+     "answer": "True"},
+
+    {"question": "Which of the following is not a Python keyword?",
+     "options": ["pass", "eval", "break", "for"],
+     "answer": "eval"},
+
+    {"question": "In Python, id() function returns:",
+     "options": ["Type of object", "Memory address", "Value", "Size of object"],
+     "answer": "Memory address"},
+
+    {"question": "Which of these is a logical operator in Python?",
+     "options": ["&&", "||", "not", "&"],
+     "answer": "not"},
+
+    {"question": "Which built-in function is used to read input from the user?",
+     "options": ["read()", "get()", "input()", "scan()"],
+     "answer": "input()"},
+
+    {"question": "The index of the first element in a list is:",
+     "options": ["1", "0", "-1", "None"],
+     "answer": "0"},
+
+    {"question": "What will print(5//2) output?",
+     "options": ["2", "2.5", "3", "2.0"],
+     "answer": "2"},
+
+    {"question": "Which statement is used to handle exceptions in Python?",
+     "options": ["try-except", "handle-error", "throw-catch", "error-try"],
+     "answer": "try-except"},
+
+    {"question": "Which function is used to find the largest number from a list?",
+     "options": ["big()", "max()", "high()", "largest()"],
+     "answer": "max()"},
+
+    {"question": "What is the result of 'A' < 'B' in Python?",
+     "options": ["True", "False", "Error", "None"],
+     "answer": "True"},
+
+    {"question": "Which module in Python is used to generate random numbers?",
+     "options": ["math", "random", "numbers", "randint"],
+     "answer": "random"}
+]
+
+results = []
+
+class BrainBattle:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("BrainBattle: The Smart Exam Arena")
+        self.root.geometry("650x450")
+        self.root.configure(bg="#f0f5ff")
+
+        self.name = ""
+        self.index = 0
+        self.score = 0
+        self.choice = tk.StringVar()
+        self.time = 60
+        self.start_page()
+
+    def start_page(self):
+        for w in self.root.winfo_children():
+            w.destroy()
+
+        tk.Label(self.root, text="🧠 BrainBattle Online Exam 🧠",
+                 font=("Helvetica", 22, "bold"), bg="#007acc", fg="white", pady=15).pack(fill="x")
+
+        frame = tk.Frame(self.root, bg="#f0f5ff")
+        frame.pack(expand=True)
+
+        tk.Label(frame, text="Enter your name:", font=("Arial", 14), bg="#f0f5ff").pack(pady=10)
+        self.name_entry = tk.Entry(frame, font=("Arial", 14), width=25)
+        self.name_entry.pack(pady=10)
+
+        tk.Button(frame, text="Start Battle", command=self.start_exam,
+                  font=("Arial", 13, "bold"), bg="#007acc", fg="white", width=15).pack(pady=15)
+
+        if results:
+            tk.Button(frame, text="View Rankings", command=self.show_rankings,
+                      font=("Arial", 12, "bold"), bg="#00b359", fg="white", width=15).pack()
+
+    def start_exam(self):
+        self.name = self.name_entry.get().strip()
+        if not self.name:
+            messagebox.showwarning("Wait!", "Please enter your name.")
+            return
+        self.index = 0
+        self.score = 0
+        self.time = 60
+        self.choice.set(None)
+        for w in self.root.winfo_children():
+            w.destroy()
+
+        tk.Label(self.root, text=f"Exam - {self.name}",
+                 font=("Arial", 18, "bold"), bg="#007acc", fg="white", pady=10).pack(fill="x")
+        self.timer = tk.Label(self.root, text="Time Left: 60s",
+                              font=("Arial", 13, "bold"), fg="red", bg="#f0f5ff")
+        self.timer.pack(pady=10)
+        self.box = tk.Frame(self.root, bg="#f0f5ff")
+        self.box.pack(pady=20)
+        self.q_label = tk.Label(self.box, text="", font=("Arial", 14),
+                                wraplength=550, justify="left", bg="#f0f5ff")
+        self.q_label.pack(anchor="w", pady=10)
+        self.opts = []
+        for _ in range(4):
+            b = tk.Radiobutton(self.box, text="", variable=self.choice, value="",
+                               font=("Arial", 12), bg="#f0f5ff", anchor="w")
+            b.pack(fill="x", padx=20, pady=5)
+            self.opts.append(b)
+
+        tk.Button(self.root, text="Next ➜", command=self.next_q,
+                  font=("Arial", 12, "bold"), bg="#007acc", fg="white", width=10).pack(pady=20)
+
+        self.load_q()
+        self.update_timer()
+
+    def load_q(self):
+        if self.index < len(questions):
+            q = questions[self.index]
+            self.q_label.config(text=f"Q{self.index+1}. {q['question']}")
+            self.choice.set(None)
+            for i, opt in enumerate(q["options"]):
+                self.opts[i].config(text=opt, value=opt)
+        else:
+            self.end_exam()
+
+    def next_q(self):
+        q = questions[self.index]
+        if self.choice.get() == q["answer"]:
+            self.score += 1
+        self.index += 1
+        if self.index < len(questions):
+            self.load_q()
+        else:
+            self.end_exam()
+
+    def update_timer(self):
+        if self.time > 0:
+            self.time -= 1
+            self.timer.config(text=f"Time Left: {self.time}s")
+            self.root.after(1000, self.update_timer)
+        else:
+            messagebox.showinfo("Time’s Up!", "Time over! Auto-submitting your answers.")
+            self.end_exam()
+
+    def end_exam(self):
+        results.append({"name": self.name, "score": self.score})
+        messagebox.showinfo("Finished!", f"{self.name}, you scored {self.score}/{len(questions)}")
+        self.start_page()
+
+    def show_rankings(self):
+        for w in self.root.winfo_children():
+            w.destroy()
+
+        tk.Label(self.root, text="🏆 Leaderboard 🏆",
+                 font=("Helvetica", 20, "bold"), bg="#007acc", fg="white", pady=15).pack(fill="x")
+
+        frame = tk.Frame(self.root, bg="#f0f5ff")
+        frame.pack(expand=True, pady=20)
+
+        sorted_res = sorted(results, key=lambda x: x["score"], reverse=True)
+        for i, r in enumerate(sorted_res, start=1):
+            tk.Label(frame, text=f"{i}. {r['name']} - {r['score']} points",
+                     font=("Arial", 14), bg="#f0f5ff").pack(pady=5)
+
+        tk.Button(self.root, text="Back", command=self.start_page,
+                  font=("Arial", 12, "bold"), bg="#007acc", fg="white", width=10).pack(pady=20)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BrainBattle(root)
+    root.mainloop()
